@@ -10,8 +10,8 @@ A Python script to dynamically generate and display QR codes on a 64x64 RGB LED 
 
 ### 🌟 Features
 - Dynamically generates QR codes from any URL or text.
-- Optimized display for 64x64 LED matrices (e.g., 2x2 pixel scaling for precise readability).
-- Adjustable brightness to prevent camera glare and ensure reliable scanning.
+- Optimized display for 64x64 LED matrices (2x2 pixel scaling for precise readability).
+- External configuration via `.env` to keep URLs and sensitive data secure.
 
 ### 🛠 Hardware Requirements
 - Raspberry Pi (e.g., Raspberry Pi 3/4)
@@ -22,7 +22,7 @@ A Python script to dynamically generate and display QR codes on a 64x64 RGB LED 
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/yourusername/your-repo-name.git
+   git clone [https://github.com/yourusername/your-repo-name.git](https://github.com/yourusername/your-repo-name.git)
    cd your-repo-name
    ```
 
@@ -34,21 +34,27 @@ A Python script to dynamically generate and display QR codes on a 64x64 RGB LED 
 
 3. **Install dependencies:**
    ```bash
-   pip install qrcode Pillow
+   pip install qrcode Pillow python-dotenv
    ```
    *(Note: Ensure the `rpi-rgb-led-matrix` library bindings are also installed/configured in your environment).*
 
 ### 💡 Usage
+Create a `.env` file in the project root and add your target URL:
+```text
+TARGET_URL="[https://your-url-here.com](https://your-url-here.com)"
+```
 
-Run the script. Since driving the LED matrix via GPIO requires root privileges, use the Python executable inside your virtual environment with `sudo`:
-
+Run the script using `sudo` with the virtual environment's Python:
 ```bash
 sudo venv/bin/python qr_display.py
 ```
 
-### 🔍 Troubleshooting & Optimization
-- **Scanning Issues (Glare):** LED matrices are extremely bright. To prevent whiteout on smartphone cameras, the script lowers the brightness (e.g., 20-30%).
-- **Scaling:** A standard URL generates a Version 3 QR code (29x29 cells). Scaling each cell to 2x2 pixels results in a 58x58 pixel image, perfectly centering on the 64x64 matrix with a scannable 3-pixel margin.
+### 🔍 Troubleshooting & Ingenuity
+- **Flicker & Glare Mitigation:** Direct scanning via smartphone cameras was initially difficult due to severe LED flicker and glare. By extensively tuning the software parameters to `gpio_slowdown = 9` and `brightness = 7`, I found the optimal sweet spot to minimize visual noise.
+- **Operational Workaround:** Since real-time scanning was limited by hardware PWM constraints, I established a reliable workflow: taking a still photo of the LED matrix with a smartphone and scanning the QR code from the captured image.
+
+### 🚧 Future Challenges (Next Steps)
+- **Achieving Direct Real-time Scanning:** To completely eliminate flickering and allow direct scanning with a QR reader app, I plan to perform the "Hardware PWM Mod" on the Adafruit Bonnet (soldering GPIO 4 to 18). Once modified, updating the software to utilize `options.parallel = 1` and `adafruit-hat-pwm` mapping should resolve the issue entirely.
 
 ---
 
@@ -60,7 +66,7 @@ Raspberry Piを使用して、64x64のRGB LEDマトリクスにQRコードを動
 ### 🌟 特徴
 - 任意のURLやテキストから動的にQRコードを生成。
 - 64x64のLEDマトリクスに最適化された表示（読み取り精度を上げるための2x2ピクセルスケーリング）。
-- カメラの白飛びを防ぎ、確実なスキャンを可能にする輝度調整機能。
+- 環境変数（`.env`）による設定の外部化に対応。URLなどの機密情報を安全に管理。
 
 ### 🛠 必要なハードウェア
 - Raspberry Pi (例: Raspberry Pi 3/4)
@@ -71,7 +77,7 @@ Raspberry Piを使用して、64x64のRGB LEDマトリクスにQRコードを動
 
 1. **リポジトリをクローン:**
    ```bash
-   git clone https://github.com/yourusername/your-repo-name.git
+   git clone [https://github.com/yourusername/your-repo-name.git](https://github.com/yourusername/your-repo-name.git)
    cd your-repo-name
    ```
 
@@ -83,21 +89,27 @@ Raspberry Piを使用して、64x64のRGB LEDマトリクスにQRコードを動
 
 3. **依存ライブラリのインストール:**
    ```bash
-   pip install qrcode Pillow
+   pip install qrcode Pillow python-dotenv
    ```
-   *(注: 環境に合わせて `rpi-rgb-led-matrix` ライブラリのセットアップも行ってください)*
+   *(注: 環境に合わせて `rpi-rgb-led-matrix` ライブラリのバインディングもセットアップしてください)*
 
 ### 💡 使い方
+プロジェクトのルートに `.env` ファイルを作成し、表示したいURLを記述します。
+```text
+TARGET_URL="[https://your-url-here.com](https://your-url-here.com)"
+```
 
-スクリプトを実行します。GPIO経由でLEDマトリクスを制御するにはroot権限が必要なため、`sudo` と共に仮想環境内のPythonを指定して実行します。
-
+GPIO経由でLEDマトリクスを制御するため、`sudo` と共に仮想環境内のPythonを指定して実行します。
 ```bash
 sudo venv/bin/python qr_display.py
 ```
 
-### 🔍 トラブルシューティングと最適化（工夫した点）
-- **白飛び対策:** LEDマトリクスは非常に明るいため、スマホカメラでの白飛びを防ぐべく輝度を20〜30%に抑えてスキャン成功率を向上させています。
-- **スケーリングと余白:** 一般的なURL（バージョン3、29x29セル）を表示する際、1セルを2x2ピクセルで描画することで58x58ピクセルに拡大。64x64パネルの中央に配置することで、読み取りに必須な3ピクセルの余白（クワイエットゾーン）を確保しています。
+### 🔍 工夫した点（トラブルシューティング）
+- **白飛びとフリッカー対策:** スマホでの直接読み取りを試みた際、LEDのPWM制御とカメラのシャッタースピードが干渉し、強烈なシマシマ模様（フリッカー）が発生しました。ソフトウェア側で `gpio_slowdown = 9`, `brightness = 7` と極限までパラメータをチューニングし、最もノイズの少ないスイートスポットを発見しました。
+- **運用による確実な読み取り:** 動画モード（QRリーダー）での直接スキャンは現状のハードウェア制約上困難だったため、「一度スマホのカメラで静止画として撮影し、その写真からQRコードを読み取る」という運用フローを確立。これにより、安定したスキャンが可能になりました。
+
+### 🚧 今後の課題（Next Steps）
+- **リアルタイムの直接スキャンの実現:** Adafruit Bonnetの基板裏面にあるGPIO 4と18をショートさせる「PWM mod（ハードウェアPWM化）」を施すことが今後の目標です。この物理的なハックと、ソフトウェア側の `options.parallel = 1` などを組み合わせることでフリッカーを完全に除去し、カメラ越しのリアルタイム読み取りを実現したいと考えています。
 
 ---
 ## 📄 License
