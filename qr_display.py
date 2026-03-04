@@ -32,7 +32,9 @@ def main():
     options.chain_length = 1
     options.parallel = 1
     options.hardware_mapping = 'adafruit-hat'
-    options.brightness = 25
+    options.brightness = 3
+    options.gpio_slowdown = 2
+    options.pwm_bits = 1
     options.drop_privileges = False
     
     matrix = RGBMatrix(options=options)
